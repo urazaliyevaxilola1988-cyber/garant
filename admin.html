@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Garant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Unbounded:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Extra admin styles */
+  .admin-login {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--black);
+    padding: 20px;
+  }
+
+  .login-box {
+    background: var(--dark-soft);
+    border-radius: var(--radius-lg);
+    padding: 48px 40px;
+    width: 100%; max-width: 380px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .login-logo {
+    font-family: var(--font-display);
+    font-size: 28px; font-weight: 900;
+    color: var(--white); margin-bottom: 8px;
+  }
+
+  .login-logo span { color: var(--red); }
+
+  .login-sub {
+    font-size: 13px; color: rgba(255,255,255,0.3);
+    margin-bottom: 32px;
+  }
+
+  .login-label {
+    font-size: 11px; font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.08em; text-transform: uppercase;
+    display: block; margin-bottom: 7px;
+  }
+
+  .login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-family: var(--font-body);
+    font-size: 14px; color: white;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .login-input:focus { border-color: var(--red); }
+  .login-input::placeholder { color: rgba(255,255,255,0.2); }
+
+  .login-btn {
+    width: 100%;
+    background: var(--red);
+    color: white; border: none;
+    border-radius: 100px; padding: 14px;
+    font-family: var(--font-body);
+    font-size: 13px; font-weight: 700;
+    cursor: pointer; margin-top: 8px;
+    transition: background 0.2s;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  .login-btn:hover { background: var(--red-dark); }
+  .login-error { color: var(--red-light); font-size: 12px; margin-top: 8px; display: none; }
+
+  .admin-wrap { display: none; }
+  .admin-wrap.visible { display: block; }
+
+  /* Product form */
+  .prod-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .prod-form-grid .full { grid-column: 1 / -1; }
+
+  /* Emoji picker */
+  .emoji-options {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+  }
+
+  .emoji-opt {
+    width: 36px; height: 36px;
+    background: var(--off-white);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .emoji-opt:hover, .emoji-opt.selected {
+    border-color: var(--red);
+    background: var(--red-pale);
+  }
+
+  /* Finance summary */
+  .finance-summary {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .fin-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-top: 4px solid transparent;
+  }
+
+  .fin-card.income { border-top-color: var(--green); }
+  .fin-card.expense { border-top-color: var(--red); }
+  .fin-card.profit { border-top-color: #1a73e8; }
+
+  .fin-card-label {
+    font-size: 11px; font-weight: 700;
+    color: var(--gray); text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 10px;
+  }
+
+  .fin-card-val {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 900;
+  }
+
+  .fin-card.income .fin-card-val { color: var(--green); }
+  .fin-card.expense .fin-card-val { color: var(--red); }
+  .fin-card.profit .fin-card-val { color: #1a73e8; }
+
+  /* Chart */
+  .monthly-chart {
+    padding: 24px;
+  }
+
+  .month-bars {
+    display: flex; gap: 8px; align-items: flex-end;
+    height: 160px; margin-top: 16px;
+  }
+
+  .month-col {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 4px;
+  }
+
+  .month-bar-wrap {
+    flex: 1; width: 100%;
+    display: flex; flex-direction: column;
+    justify-content: flex-end; gap: 2px;
+  }
+
+  .month-bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.8s ease;
+    min-height: 4px;
+  }
+
+  .month-bar.inc { background: var(--green); }
+  .month-bar.exp { background: var(--red); opacity: 0.7; }
+
+  .month-label {
+    font-size: 10px; font-weight: 700;
+    color: var(--gray); text-transform: uppercase;
+  }
+
+  .chart-legend {
+    display: flex; gap: 16px; margin-top: 12px;
+    font-size: 11px; font-weight: 600; color: var(--gray);
+  }
+
+  .chart-legend span {
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .chart-legend i {
+    width: 12px; height: 12px;
+    border-radius: 2px; display: block;
+  }
+
+  /* Nav count badge */
+  .nav-badge {
+    background: var(--red);
+    color: white;
+    font-size: 9px; font-weight: 700;
+    padding: 1px 5px; border-radius: 100px;
+    margin-left: 4px;
+  }
+
+  @media(max-width:900px) {
+    .prod-form-grid { grid-template-columns: 1fr; }
+    .finance-summary { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="admin-login" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">GARAN<span>T</span></div>
+    <div class="login-sub">Admin panel — kirish</div>
+    <label class="login-label">Foydalanuvchi nomi</label>
+    <input class="login-input" id="loginUser" type="text" placeholder="admin" autocomplete="off">
+    <label class="login-label">Parol</label>
+    <input class="login-input" id="loginPass" type="password" placeholder="••••••••">
+    <div class="login-error" id="loginError">❌ Noto'g'ri login yoki parol</div>
+    <button class="login-btn" onclick="doLogin()">Kirish →</button>
+    <div style="margin-top:20px;font-size:11px;color:rgba(255,255,255,0.15);text-align:center">
+      Demo: admin / garant2026
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN WRAP -->
+<div class="admin-wrap" id="adminWrap">
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo.png" alt="Garant" style="height:42px;width:42px;object-fit:contain;border-radius:8px">
+      <div class="nav-logo-text">GARAN<span>T</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">🏠 Sayt</a></li>
+      <li><a href="katalog.html">📦 Katalog</a></li>
+    </ul>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--gray)">👤 Admin</div>
+      <button class="btn-secondary" style="padding:8px 16px;font-size:12px" onclick="doLogout()">Chiqish</button>
+    </div>
+  </nav>
+
+  <div class="admin-page">
+    <!-- SIDEBAR -->
+    <div class="admin-sidebar" id="adminSidebar">
+      <div class="admin-nav-label">Asosiy</div>
+      <div class="admin-nav-group">
+        <button class="admin-nav-link active" onclick="showTab('dashboard', this)">
+          <span class="admin-nav-icon">📊</span> Dashboard
+        </button>
+        <button class="admin-nav-link" onclick="showTab('orders', this)" id="ordersNavBtn">
+          <span class="admin-nav-icon">🛒</span> Buyurtmalar <span class="nav-badge" id="ordersNavBadge" style="display:none">0</span>
+        </button>
+        <button class="admin-nav-link" onclick="showTab('products', this)">
+          <span class="admin-nav-icon">📦</span> Mahsulotlar
+        </button>
+        <button class="admin-nav-link" onclick="showTab('finance', this)">
+          <span class="admin-nav-icon">💰</span> Moliya
+        </button>
+        <button class="admin-nav-link" onclick="showTab('comments', this)">
+          <span class="admin-nav-icon">💬</span> Izohlar
+        </button>
+      </div>
+      <div class="admin-nav-label" style="margin-top:16px">Sozlamalar</div>
+      <div class="admin-nav-group">
+        <button class="admin-nav-link" onclick="showTab('categories', this)">
+          <span class="admin-nav-icon">🗂️</span> Kategoriyalar
+        </button>
+        <button class="admin-nav-link" onclick="showTab('settings', this)">
+          <span class="admin-nav-icon">⚙️</span> Sozlamalar
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="admin-main">
+
+      <!-- ===== ORDERS ===== -->
+      <div class="admin-tab" id="tab-orders">
+        <div class="admin-topbar">
+          <div>
+            <div class="admin-page-title">Buyurtmalar</div>
+            <div class="admin-page-sub" id="ordersCount">Savatchadan kelgan buyurtmalar</div>
+          </div>
+          <button class="btn-secondary" style="border-color:var(--red);color:var(--red)" onclick="clearOrders()">🗑️ Barchasini tozalash</button>
+        </div>
+        <div class="admin-card">
+          <div id="ordersListWrap"></div>
+        </div>
+      </div>
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="admin-tab active" id="tab-dashboard">
+        <div class="admin-topbar">
+          <div>
+            <div class="admin-page-title">Dashboard</div>
+            <div class="admin-page-sub" id="dashDate"></div>
+          </div>
+          <a href="index.html" class="btn-primary" style="font-size:12px;padding:10px 20px">🌐 Saytni ko'rish</a>
+        </div>
+
+        <div class="admin-stats-grid" id="dashStats"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Oxirgi tranzaksiyalar</div>
+              <button class="btn-primary" style="font-size:11px;padding:8px 14px" onclick="showTab('finance',document.querySelector('[onclick*=finance]'))">Barchasi</button>
+            </div>
+            <table class="admin-table" id="dashTransTable"></table>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Kam qolgan mahsulotlar</div>
+            </div>
+            <table class="admin-table" id="dashLowStock"></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PRODUCTS ===== -->
+      <div class="admin-tab" id="tab-products">
+        <div class="admin-topbar">
+          <div>
+            <div class="admin-page-title">Mahsulotlar</div>
+            <div class="admin-page-sub" id="prodCount"></div>
+          </div>
+          <button class="btn-primary" onclick="openModal('addProductModal')">+ Mahsulot qo'shish</button>
+        </div>
+
+        <!-- search -->
+        <div style="margin-bottom:20px">
+          <input type="text" id="adminProdSearch" placeholder="🔍 Qidirish..." oninput="renderAdminProducts()"
+            style="padding:12px 18px;border:2px solid var(--border);border-radius:100px;font-family:var(--font-body);font-size:13px;outline:none;width:300px;transition:border-color 0.2s"
+            onfocus="this.style.borderColor='var(--red)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div class="admin-card">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Mahsulot</th>
+                <th>Kategoriya</th>
+                <th>Narx</th>
+                <th>Ombor</th>
+                <th>Holat</th>
+                <th>Amal</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== FINANCE ===== -->
+      <div class="admin-tab" id="tab-finance">
+        <div class="admin-topbar">
+          <div>
+            <div class="admin-page-title">Moliyaviy hisobot</div>
+            <div class="admin-page-sub">Kirim va chiqimlar</div>
+          </div>
+          <button class="btn-primary" onclick="openModal('addTransModal')">+ Tranzaksiya</button>
+        </div>
+
+        <div class="finance-summary" id="financeSummary"></div>
+
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;margin-bottom:24px">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Oylik ko'rsatkichlar</div>
+            </div>
+            <div class="monthly-chart" id="monthlyChart"></div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Kategoriyalar</div>
+            </div>
+            <div class="chart-bar-wrap" id="catChart"></div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">Tranzaksiyalar jurnali</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="transFilter" onchange="renderTransactions()" style="padding:8px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:12px;outline:none">
+                <option value="all">Barchasi</option>
+                <option value="income">Kirim</option>
+                <option value="expense">Chiqim</option>
+              </select>
+            </div>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Sana</th>
+                <th>Tur</th>
+                <th>Kategoriya</th>
+                <th>Tavsif</th>
+                <th>Summa</th>
+                <th>Amal</th>
+              </tr>
+            </thead>
+            <tbody id="transTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== CATEGORIES ===== -->
+      <div class="admin-tab" id="tab-categories">
+        <div class="admin-topbar">
+          <div>
+            <div class="admin-page-title">Kategoriyalar</div>
+            <div class="admin-page-sub">Mahsulot kategoriyalarini boshqaring</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Yangi kategoriya</div>
+            </div>
+            <div style="padding:24px">
+              <div class="form-group">
+                <label>Kategoriya nomi *</label>
+                <input type="text" id="newCatInput" placeholder="Masalan: Televizorlar">
+              </div>
+              <div class="form-group">
+                <label>Rasm (ixtiyoriy)</label>
+                <div id="catImageArea" onclick="document.getElementById('catImageFile').click()"
+                  style="border:2px dashed var(--border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--off-white);min-height:90px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;position:relative"
+                  onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'"
+                  ondragover="event.preventDefault();this.style.borderColor='var(--red)'"
+                  ondragleave="this.style.borderColor='var(--border)'"
+                  ondrop="handleCatImageDrop(event)">
+                  <div id="catImgPreviewWrap" style="display:none;width:100%;position:relative">
+                    <img id="catImgPreview" src="" style="max-height:100px;max-width:100%;object-fit:cover;border-radius:var(--radius-sm);display:block;margin:0 auto">
+                    <button onclick="event.stopPropagation();clearCatImage()" title="O'chirish"
+                      style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:var(--red);color:white;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center">✕</button>
+                  </div>
+                  <div id="catImgPlaceholder" style="color:var(--gray)">
+                    <div style="font-size:24px;margin-bottom:4px">🖼️</div>
+                    <div style="font-size:12px;font-weight:600">Rasm yuklash</div>
+                    <div style="font-size:10px;margin-top:2px;color:var(--gray-light)">JPG, PNG (maks 5MB)</div>
+                  </div>
+                </div>
+                <input type="file" id="catImageFile" accept="image/*" style="display:none" onchange="handleCatImageFile(this)">
+                <input type="hidden" id="catImageData">
+              </div>
+              <button class="btn-primary" onclick="addCategory()">+ Qo'shish</button>
+            </div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Kategoriyalar ro'yxati</div>
+            </div>
+            <div id="catList" style="padding:16px;display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+
+        <!-- Edit category modal -->
+        <div id="catEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:600;align-items:center;justify-content:center;padding:20px">
+          <div style="background:white;border-radius:var(--radius-lg);width:100%;max-width:420px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.25)">
+            <div style="background:var(--black);color:white;padding:18px 24px;display:flex;align-items:center;justify-content:space-between">
+              <div style="font-family:var(--font-display);font-size:16px;font-weight:900">Kategoriyani tahrirlash</div>
+              <button onclick="closeCatEdit()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:white;cursor:pointer;font-size:15px">✕</button>
+            </div>
+            <div style="padding:24px">
+              <input type="hidden" id="editCatIdx">
+              <div class="form-group">
+                <label>Kategoriya nomi *</label>
+                <input type="text" id="editCatName" placeholder="Kategoriya nomi">
+              </div>
+              <div class="form-group">
+                <label>Rasm</label>
+                <div id="catEditImageArea" onclick="document.getElementById('catEditImageFile').click()"
+                  style="border:2px dashed var(--border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--off-white);min-height:90px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;position:relative"
+                  onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'">
+                  <div id="catEditImgPreviewWrap" style="display:none;width:100%;position:relative">
+                    <img id="catEditImgPreview" src="" style="max-height:100px;max-width:100%;object-fit:cover;border-radius:var(--radius-sm);display:block;margin:0 auto">
+                    <button onclick="event.stopPropagation();clearCatEditImage()" title="O'chirish"
+                      style="position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:var(--red);color:white;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center">✕</button>
+                  </div>
+                  <div id="catEditImgPlaceholder" style="color:var(--gray)">
+                    <div style="font-size:24px;margin-bottom:4px">🖼️</div>
+                    <div style="font-size:12px;font-weight:600">Rasm yuklash</div>
+                  </div>
+                </div>
+                <input type="file" id="catEditImageFile" accept="image/*" style="display:none" onchange="handleCatEditImageFile(this)">
+                <input type="hidden" id="catEditImageData">
+              </div>
+              <div style="display:flex;gap:12px;margin-top:8px">
+                <button class="btn-secondary" onclick="closeCatEdit()" style="flex:1">Bekor</button>
+                <button class="btn-primary" onclick="saveCatEdit()" style="flex:2">Saqlash</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== COMMENTS ADMIN ===== -->
+      <div class="admin-tab" id="tab-comments">
+        <div class="admin-topbar">
+          <div>
+            <div class="admin-page-title">Izohlar</div>
+            <div class="admin-page-sub">Mijozlar qoldirgan izohlarni boshqaring</div>
+          </div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title" id="commentsAdminTitle">Barcha izohlar</div>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Mijoz</th>
+                <th>Baho</th>
+                <th>Izoh</th>
+                <th>Sana</th>
+                <th>Amal</th>
+              </tr>
+            </thead>
+            <tbody id="commentsAdminBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="admin-tab" id="tab-settings">
+        <div class="admin-topbar">
+          <div>
+            <div class="admin-page-title">Sozlamalar</div>
+            <div class="admin-page-sub">Tizim va ma'lumotlarni boshqaring</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Parolni o'zgartirish</div>
+            </div>
+            <div style="padding:24px">
+              <div class="form-group">
+                <label>Hozirgi parol</label>
+                <input type="password" id="oldPass" placeholder="••••••••">
+              </div>
+              <div class="form-group">
+                <label>Yangi parol</label>
+                <input type="password" id="newPass" placeholder="••••••••">
+              </div>
+              <div class="form-group">
+                <label>Yangi parolni tasdiqlang</label>
+                <input type="password" id="newPass2" placeholder="••••••••">
+              </div>
+              <button class="btn-primary" onclick="changePassword()">Saqlash</button>
+            </div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">Ma'lumotlarni boshqarish</div>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:12px">
+              <div style="font-size:13px;color:var(--gray);line-height:1.6">
+                Barcha ma'lumotlar brauzer xotirasida saqlanadi. Quyida ma'lumotlarni tozalash yoki qayta tiklash mumkin.
+              </div>
+              <button class="btn-secondary" onclick="resetToDefault()">🔄 Asosiy ma'lumotlarni tiklash</button>
+              <button class="btn-secondary" style="border-color:var(--red);color:var(--red)" onclick="clearAllData()">🗑️ Barcha ma'lumotlarni o'chirish</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-main -->
+  </div><!-- /admin-page -->
+</div><!-- /admin-wrap -->
+
+<!-- ===== MODAL: Add Product ===== -->
+<div class="modal-overlay" id="addProductModal" onclick="if(event.target===this)closeModal('addProductModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="productModalTitle">Mahsulot qo'shish</div>
+      <button class="modal-close" onclick="closeModal('addProductModal')">✕</button>
+    </div>
+    <input type="hidden" id="editProductId">
+    <div class="prod-form-grid">
+      <div class="form-group full">
+        <label>Mahsulot nomi *</label>
+        <input type="text" id="pName" placeholder="Masalan: Tefal FV5696">
+      </div>
+      <div class="form-group">
+        <label>Brend *</label>
+        <input type="text" id="pBrand" placeholder="Masalan: Tefal">
+      </div>
+      <div class="form-group">
+        <label>Kategoriya *</label>
+        <select id="pCategory"></select>
+      </div>
+      <div class="form-group">
+        <label>Narx (so'm) *</label>
+        <input type="number" id="pPrice" placeholder="850000">
+      </div>
+      <div class="form-group">
+        <label>Ombordagi miqdor</label>
+        <input type="number" id="pStock" placeholder="10">
+      </div>
+      <div class="form-group full">
+        <label>Min. Miqdor (ogohlantirish)</label>
+        <input type="number" id="pMinStock" placeholder="3">
+      </div>
+      <div class="form-group full">
+        <label>Tavsif</label>
+        <textarea id="pDesc" rows="2" placeholder="Qisqacha tavsif..."></textarea>
+      </div>
+
+      <!-- IMAGE UPLOAD -->
+      <div class="form-group full">
+        <label>Mahsulot rasmi</label>
+        <div id="imageUploadArea" onclick="document.getElementById('pImageFile').click()"
+          style="border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--off-white);position:relative;min-height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px"
+          onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor='var(--border)'"
+          ondragover="event.preventDefault();this.style.borderColor='var(--red)'"
+          ondragleave="this.style.borderColor='var(--border)'"
+          ondrop="handleImageDrop(event)">
+          <div id="imagePreviewWrap" style="display:none;width:100%;position:relative">
+            <img id="imagePreview" src="" alt="preview"
+              style="max-height:160px;max-width:100%;object-fit:contain;border-radius:var(--radius-sm);display:block;margin:0 auto">
+            <button onclick="event.stopPropagation();clearImage()" title="Rasmni o'chirish"
+              style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:var(--red);color:white;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>
+          <div id="imageUploadPlaceholder" style="color:var(--gray)">
+            <div style="font-size:32px;margin-bottom:6px">🖼️</div>
+            <div style="font-size:13px;font-weight:600">Rasm yuklash uchun bosing</div>
+            <div style="font-size:11px;margin-top:4px;color:var(--gray-light)">yoki shu yerga tashlang · JPG, PNG (maks 5MB)</div>
+          </div>
+        </div>
+        <input type="file" id="pImageFile" accept="image/*" style="display:none" onchange="handleImageFile(this)">
+        <input type="hidden" id="pImage">
+        <div style="margin-top:8px;font-size:11px;color:var(--gray)">
+          💡 Rasm yuklamasangiz, kategoriyaga mos rasm avtomatik qo'yiladi
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label>Emoji belgisi (rasm bo'lmasa)</label>
+        <div class="emoji-options" id="emojiOptions">
+          <div class="emoji-opt" onclick="selectEmoji('📦', this)">📦</div>
+          <div class="emoji-opt" onclick="selectEmoji('🔥', this)">🔥</div>
+          <div class="emoji-opt" onclick="selectEmoji('👶', this)">👶</div>
+          <div class="emoji-opt" onclick="selectEmoji('💧', this)">💧</div>
+          <div class="emoji-opt" onclick="selectEmoji('🧊', this)">🧊</div>
+          <div class="emoji-opt" onclick="selectEmoji('🫧', this)">🫧</div>
+          <div class="emoji-opt" onclick="selectEmoji('❄️', this)">❄️</div>
+          <div class="emoji-opt" onclick="selectEmoji('📺', this)">📺</div>
+          <div class="emoji-opt" onclick="selectEmoji('🌬️', this)">🌬️</div>
+          <div class="emoji-opt" onclick="selectEmoji('⚡', this)">⚡</div>
+          <div class="emoji-opt" onclick="selectEmoji('🍳', this)">🍳</div>
+          <div class="emoji-opt" onclick="selectEmoji('☕', this)">☕</div>
+        </div>
+        <input type="hidden" id="pEmoji" value="📦">
+      </div>
+
+      <!-- VARIANTS -->
+      <div class="form-group full" style="border-top:2px solid var(--border);padding-top:16px;margin-top:4px">
+        <label style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;display:block">🎨 Mahsulot variantlari (ixtiyoriy)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div class="form-group" style="margin-bottom:0">
+            <label>Ranglar (vergul bilan)</label>
+            <input type="text" id="pColors" placeholder="Masalan: Oq, Qora, Ko'k">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>O'lchamlar (vergul bilan)</label>
+            <input type="text" id="pSizes" placeholder="Masalan: S, M, L, XL">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label>Kafolat (vergul bilan)</label>
+            <input type="text" id="pWarranties" placeholder="Masalan: 1 yil, 2 yil, 3 yil">
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--gray);margin-top:8px">💡 Mijoz mahsulotni savatchaga qo'shayotganda bu variantlardan birini tanlaydi</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:24px">
+      <button class="btn-secondary" onclick="closeModal('addProductModal')" style="flex:1">Bekor</button>
+      <button class="btn-primary" onclick="saveProduct()" style="flex:2">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Add Transaction ===== -->
+<div class="modal-overlay" id="addTransModal" onclick="if(event.target===this)closeModal('addTransModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="transModalTitle">Tranzaksiya qo'shish</div>
+      <button class="modal-close" onclick="closeModal('addTransModal')">✕</button>
+    </div>
+    <input type="hidden" id="editTransId">
+
+    <div class="form-group">
+      <label>Turi *</label>
+      <select id="tType">
+        <option value="income">📈 Kirim</option>
+        <option value="expense">📉 Chiqim</option>
+      </select>
+    </div>
+    <div class="trans-form-grid">
+      <div class="form-group">
+        <label>Summa (so'm) *</label>
+        <input type="number" id="tAmount" placeholder="1000000">
+      </div>
+      <div class="form-group">
+        <label>Sana *</label>
+        <input type="date" id="tDate">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Kategoriya</label>
+      <select id="tCategory">
+        <option>Savdo</option>
+        <option>Xarid</option>
+        <option>Kommunal</option>
+        <option>Ish haqi</option>
+        <option>Marketing</option>
+        <option>Ofis</option>
+        <option>Boshqa</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Tavsif *</label>
+      <input type="text" id="tDesc" placeholder="Masalan: Tefal dazmol sotildi x5">
+    </div>
+    <div style="display:flex;gap:12px;margin-top:24px">
+      <button class="btn-secondary" onclick="closeModal('addTransModal')" style="flex:1">Bekor</button>
+      <button class="btn-primary" onclick="saveTransaction()" style="flex:2">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Edit Stock ===== -->
+<div class="modal-overlay" id="stockModal" onclick="if(event.target===this)closeModal('stockModal')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Ombor yangilash</div>
+      <button class="modal-close" onclick="closeModal('stockModal')">✕</button>
+    </div>
+    <div id="stockProductName" style="font-family:var(--font-display);font-size:16px;color:var(--gray);margin-bottom:20px"></div>
+    <input type="hidden" id="stockProductId">
+    <div class="form-group">
+      <label>Yangi miqdor (dona)</label>
+      <input type="number" id="stockNewVal" placeholder="0" min="0">
+    </div>
+    <div style="display:flex;gap:12px;margin-top:24px">
+      <button class="btn-secondary" onclick="closeModal('stockModal')" style="flex:1">Bekor</button>
+      <button class="btn-primary" onclick="updateStock()" style="flex:2">Yangilash</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// ===== AUTH =====
+const ADMIN_CREDS_KEY = 'garant_admin_creds';
+
+function getCreds() {
+  try {
+    const v = localStorage.getItem(ADMIN_CREDS_KEY);
+    return v ? JSON.parse(v) : { user: 'admin', pass: 'garant2026' };
+  } catch { return { user: 'admin', pass: 'garant2026' }; }
+}
+
+function isLoggedIn() {
+  return sessionStorage.getItem('garant_logged') === '1';
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  const creds = getCreds();
+  if (u === creds.user && p === creds.pass) {
+    sessionStorage.setItem('garant_logged', '1');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminWrap').classList.add('visible');
+    initAdmin();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('garant_logged');
+  location.reload();
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ===== TAB NAVIGATION =====
+function showTab(name, btn) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-nav-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  // refresh
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'products') renderAdminProducts();
+  if (name === 'finance') renderFinance();
+  if (name === 'categories') renderCategories();
+  if (name === 'comments') renderCommentsAdmin();
+  if (name === 'orders') renderOrders();
+}
+
+// ===== ORDERS =====
+function renderOrders() {
+  const orders = Store.get('orders', []);
+  const wrap = document.getElementById('ordersListWrap');
+  const countEl = document.getElementById('ordersCount');
+  const badge = document.getElementById('ordersNavBadge');
+
+  if (badge) {
+    badge.textContent = orders.length;
+    badge.style.display = orders.length > 0 ? 'inline-flex' : 'none';
+  }
+  if (countEl) countEl.textContent = `Jami: ${orders.length} ta buyurtma`;
+
+  if (!wrap) return;
+  if (orders.length === 0) {
+    wrap.innerHTML = `<div style="text-align:center;padding:60px;color:var(--gray)">
+      <div style="font-size:48px;margin-bottom:12px">🛒</div>
+      <div style="font-weight:700;font-size:16px;color:var(--black);margin-bottom:6px">Hali buyurtma yo'q</div>
+      <div>Saytdan buyurtma berilganda bu yerda ko'rinadi</div>
+    </div>`;
+    return;
+  }
+
+  const statusColors = { new: '#1565C0', processing: '#E65100', done: '#2E7D32', cancelled: '#D42027' };
+  const statusLabels = { new: '🆕 Yangi', processing: '⏳ Jarayonda', done: '✅ Bajarildi', cancelled: '❌ Bekor' };
+
+  wrap.innerHTML = orders.map(o => {
+    // items bo'lsa ulardan, bo'lmasa eski product/price formatdan foydalanish
+    const hasItems = o.items && o.items.length > 0;
+    const itemLines = hasItems
+      ? o.items.map(i => {
+          const v = Object.entries(i.variant||{}).filter(([,v])=>v).map(([k,v])=>`${k}: ${v}`).join(', ');
+          return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <span>${i.brand} ${i.name}${v?' ('+v+')':''} × ${i.qty}</span>
+            <span style="font-weight:700">${fmtPrice(i.price * i.qty)}</span>
+          </div>`;
+        }).join('')
+      : o.product
+        ? `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <span>📦 ${o.product}</span>
+            <span style="font-weight:700">${fmtPrice(o.price||0)}</span>
+          </div>`
+        : '';
+
+    const total = o.total || (hasItems ? o.items.reduce((s,i)=>s+i.price*i.qty,0) : o.price || 0);
+
+    return `
+      <div style="border:1px solid var(--border);border-radius:var(--radius);margin:0 16px 16px;overflow:hidden">
+        <div style="background:var(--off-white);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-weight:800;font-size:14px">👤 ${o.name} · 📞 ${o.phone}</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:2px">${o.address?'📍 '+o.address:''}${o.note?' · 💬 '+o.note:''}</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:2px">🕐 ${o.date}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select onchange="updateOrderStatus(${o.id}, this.value)"
+              style="padding:6px 10px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:12px;font-weight:700;outline:none;color:${statusColors[o.status||'new']}">
+              ${Object.entries(statusLabels).map(([k,v]) => `<option value="${k}" ${o.status===k?'selected':''}>${v}</option>`).join('')}
+            </select>
+            <button class="action-btn delete" onclick="deleteOrder(${o.id})" title="O'chirish">🗑️</button>
+          </div>
+        </div>
+        <div style="padding:12px 18px">
+          ${itemLines}
+          <div style="display:flex;justify-content:flex-end;padding-top:10px">
+            <span style="font-family:var(--font-display);font-size:16px;font-weight:900;color:var(--red)">Jami: ${fmtPrice(total)}</span>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function updateOrderStatus(id, status) {
+  const orders = Store.get('orders', []);
+  const idx = orders.findIndex(o => o.id === id);
+  if (idx > -1) { orders[idx].status = status; Store.set('orders', orders); }
+  showToast('Status yangilandi ✓', 'success');
+}
+
+function deleteOrder(id) {
+  if (!confirm("Buyurtmani o'chirishni tasdiqlaysizmi?")) return;
+  Store.set('orders', Store.get('orders', []).filter(o => o.id !== id));
+  showToast("Buyurtma o'chirildi", 'info');
+  renderOrders();
+}
+
+function clearOrders() {
+  if (!confirm("Barcha buyurtmalarni o'chirishni tasdiqlaysizmi?")) return;
+  Store.set('orders', []);
+  showToast("Barcha buyurtmalar o'chirildi", 'info');
+  renderOrders();
+}
+
+// ===== ORDERS =====
+function renderCommentsAdmin() {
+  const tbody = document.getElementById('commentsAdminBody');
+  const title = document.getElementById('commentsAdminTitle');
+  if (!tbody) return;
+  title.textContent = `Barcha izohlar (${comments.length})`;
+  if (!comments.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--gray)">Hali izoh yo'q</td></tr>`;
+    return;
+  }
+  const colors = ['#D42027','#1565C0','#2E7D32','#6A1B9A','#E65100','#0277BD'];
+  tbody.innerHTML = comments.map(c => {
+    let hash = 0;
+    for (let ch of (c.name||'')) hash = (hash*31+ch.charCodeAt(0))&0xffffffff;
+    const col = colors[Math.abs(hash)%colors.length];
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;border-radius:50%;background:${col};color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${c.avatar||'?'}</div>
+            <div style="font-weight:700;font-size:13px">${c.name||''}</div>
+          </div>
+        </td>
+        <td><span style="color:#f59e0b;font-size:14px">${'★'.repeat(c.stars||5)}${'☆'.repeat(5-(c.stars||5))}</span></td>
+        <td style="max-width:300px;font-size:13px">${c.text||''}</td>
+        <td style="font-size:12px;color:var(--gray)">${c.date||''}</td>
+        <td>
+          <button class="action-btn delete" onclick="deleteComment(${c.id})" title="O'chirish">🗑️</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function deleteComment(id) {
+  if (!confirm("Izohni o'chirishni tasdiqlaysizmi?")) return;
+  const comments = Store.get('comments', []).filter(c => c.id !== id);
+  Store.set('comments', comments);
+  showToast("Izoh o'chirildi", 'info');
+  renderCommentsAdmin();
+}
+
+// ===== INIT ADMIN =====
+function initAdmin() {
+  initData();
+  // date
+  const now = new Date();
+  document.getElementById('dashDate').textContent =
+    now.toLocaleDateString('uz-UZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  // today date default for trans modal
+  document.getElementById('tDate').valueAsDate = new Date();
+  // orders badge
+  const orders = Store.get('orders', []);
+  const badge = document.getElementById('ordersNavBadge');
+  if (badge && orders.length > 0) { badge.textContent = orders.length; badge.style.display = 'inline-flex'; }
+  renderDashboard();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const products = Store.get('products', []);
+  const trans = Store.get('transactions', []);
+  const income = trans.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const expense = trans.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const lowStock = products.filter(p => p.stock > 0 && p.stock <= p.minStock);
+  const outStock = products.filter(p => p.stock === 0);
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon red">📦</div>
+      <div class="admin-stat-val">${products.filter(p=>p.active).length}</div>
+      <div class="admin-stat-label">Jami mahsulot</div>
+      <div class="admin-stat-change up">↑ ${outStock.length} tugagan</div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon green">💰</div>
+      <div class="admin-stat-val" style="font-size:18px">${fmtPrice(income)}</div>
+      <div class="admin-stat-label">Jami kirim</div>
+      <div class="admin-stat-change up">↑ barcha vaqt</div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon orange">📉</div>
+      <div class="admin-stat-val" style="font-size:18px">${fmtPrice(expense)}</div>
+      <div class="admin-stat-label">Jami chiqim</div>
+      <div class="admin-stat-change down">↓ barcha vaqt</div>
+    </div>
+    <div class="admin-stat-card">
+      <div class="admin-stat-icon blue">📈</div>
+      <div class="admin-stat-val" style="font-size:18px;color:${income-expense>=0?'var(--green)':'var(--red)'}">${fmtPrice(income - expense)}</div>
+      <div class="admin-stat-label">Sof foyda</div>
+      <div class="admin-stat-change ${income-expense>=0?'up':'down'}">${income-expense>=0?'↑ Foyda':'↓ Zarar'}</div>
+    </div>
+  `;
+
+  // Recent transactions
+  const recentTrans = [...trans].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  document.getElementById('dashTransTable').innerHTML = `
+    <thead><tr><th>Sana</th><th>Tavsif</th><th>Summa</th></tr></thead>
+    <tbody>${recentTrans.map(t => `
+      <tr>
+        <td>${t.date}</td>
+        <td>${t.desc}</td>
+        <td style="color:${t.type==='income'?'var(--green)':'var(--red)'}; font-weight:700">
+          ${t.type==='income'?'+':'-'}${fmtPrice(t.amount)}
+        </td>
+      </tr>`).join('')}</tbody>
+  `;
+
+  // Low stock
+  const lowProds = [...products.filter(p => p.stock <= p.minStock)].slice(0, 6);
+  document.getElementById('dashLowStock').innerHTML = `
+    <thead><tr><th>Mahsulot</th><th>Miqdor</th><th>Amal</th></tr></thead>
+    <tbody>${lowProds.map(p => `
+      <tr>
+        <td>${p.emoji} ${p.name}</td>
+        <td><span class="badge ${p.stock===0?'badge-red':'badge-orange'}">${p.stock} dona</span></td>
+        <td><button class="action-btn edit" onclick="openStockModal(${p.id})" title="Yangilash">📥</button></td>
+      </tr>`).join('')}
+    </tbody>
+  `;
+}
+
+// ===== PRODUCTS =====
+let selectedEmoji = '📦';
+
+// --- Image upload helpers ---
+function handleImageFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast("Rasm 5MB dan kichik bo'lsin!", 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => setImagePreview(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+function handleImageDrop(event) {
+  event.preventDefault();
+  event.currentTarget.style.borderColor = 'var(--border)';
+  const file = event.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) { showToast("Faqat rasm fayli qabul qilinadi!", 'error'); return; }
+  if (file.size > 5 * 1024 * 1024) { showToast("Rasm 5MB dan kichik bo'lsin!", 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => setImagePreview(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+function setImagePreview(src) {
+  document.getElementById('pImage').value = src;
+  document.getElementById('imagePreview').src = src;
+  document.getElementById('imagePreviewWrap').style.display = 'block';
+  document.getElementById('imageUploadPlaceholder').style.display = 'none';
+}
+
+function clearImage() {
+  document.getElementById('pImage').value = '';
+  document.getElementById('pImageFile').value = '';
+  document.getElementById('imagePreview').src = '';
+  document.getElementById('imagePreviewWrap').style.display = 'none';
+  document.getElementById('imageUploadPlaceholder').style.display = 'flex';
+}
+
+function resetImageUpload() {
+  clearImage();
+}
+
+function selectEmoji(em, el) {
+  selectedEmoji = em;
+  document.getElementById('pEmoji').value = em;
+  document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function fillCategorySelect() {
+  const cats = Store.get('categories', []);
+  const sel = document.getElementById('pCategory');
+  sel.innerHTML = cats.map(c => `<option>${c}</option>`).join('');
+}
+
+function openAddProduct() {
+  document.getElementById('productModalTitle').textContent = "Mahsulot qo'shish";
+  document.getElementById('editProductId').value = '';
+  document.getElementById('pName').value = '';
+  document.getElementById('pBrand').value = '';
+  document.getElementById('pPrice').value = '';
+  document.getElementById('pStock').value = '';
+  document.getElementById('pMinStock').value = '3';
+  document.getElementById('pDesc').value = '';
+  document.getElementById('pEmoji').value = '📦';
+  document.getElementById('pColors').value = '';
+  document.getElementById('pSizes').value = '';
+  document.getElementById('pWarranties').value = '';
+  selectedEmoji = '📦';
+  document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+  document.querySelector('.emoji-opt').classList.add('selected');
+  resetImageUpload();
+  fillCategorySelect();
+  openModal('addProductModal');
+}
+
+function openEditProduct(id) {
+  const products = Store.get('products', []);
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  fillCategorySelect();
+  document.getElementById('productModalTitle').textContent = 'Mahsulotni tahrirlash';
+  document.getElementById('editProductId').value = id;
+  document.getElementById('pName').value = p.name;
+  document.getElementById('pBrand').value = p.brand;
+  document.getElementById('pPrice').value = p.price;
+  document.getElementById('pStock').value = p.stock;
+  document.getElementById('pMinStock').value = p.minStock;
+  document.getElementById('pDesc').value = p.desc || '';
+  document.getElementById('pEmoji').value = p.emoji || '📦';
+  // Variants
+  const v = p.variants || {};
+  document.getElementById('pColors').value = (v.colors || []).join(', ');
+  document.getElementById('pSizes').value = (v.sizes || []).join(', ');
+  document.getElementById('pWarranties').value = (v.warranties || []).join(', ');
+  selectedEmoji = p.emoji || '📦';
+  document.querySelectorAll('.emoji-opt').forEach(e => {
+    e.classList.toggle('selected', e.textContent === selectedEmoji);
+  });
+  document.getElementById('pCategory').value = p.category;
+  // Image
+  if (p.image) {
+    setImagePreview(p.image);
+  } else {
+    resetImageUpload();
+  }
+  openModal('addProductModal');
+}
+
+function saveProduct() {
+  const name = document.getElementById('pName').value.trim();
+  const brand = document.getElementById('pBrand').value.trim();
+  const price = parseInt(document.getElementById('pPrice').value) || 0;
+  const stock = parseInt(document.getElementById('pStock').value) || 0;
+  const minStock = parseInt(document.getElementById('pMinStock').value) || 3;
+  const category = document.getElementById('pCategory').value;
+  const desc = document.getElementById('pDesc').value.trim();
+  const emoji = document.getElementById('pEmoji').value || '📦';
+  const image = document.getElementById('pImage').value || '';
+  const editId = document.getElementById('editProductId').value;
+
+  // Parse variants
+  const parseList = val => val.split(',').map(s => s.trim()).filter(Boolean);
+  const variants = {
+    colors: parseList(document.getElementById('pColors').value),
+    sizes: parseList(document.getElementById('pSizes').value),
+    warranties: parseList(document.getElementById('pWarranties').value),
+  };
+
+  if (!name || !brand || !price || !category) {
+    showToast("Majburiy maydonlarni to'ldiring!", 'error'); return;
+  }
+
+  const products = Store.get('products', []);
+
+  if (editId) {
+    const idx = products.findIndex(p => p.id === parseInt(editId));
+    if (idx > -1) {
+      products[idx] = { ...products[idx], name, brand, price, stock, minStock, category, desc, emoji, image, variants };
+      showToast('Mahsulot yangilandi ✓', 'success');
+    }
+  } else {
+    const newId = Store.get('nextProductId', 9);
+    products.push({ id: newId, name, brand, price, stock, minStock, category, desc, emoji, image, variants, active: true });
+    Store.set('nextProductId', newId + 1);
+    showToast("Mahsulot qo'shildi ✓", 'success');
+  }
+
+  Store.set('products', products);
+  closeModal('addProductModal');
+  renderAdminProducts();
+}
+
+function deleteProduct(id) {
+  if (!confirm('Mahsulotni o\'chirishni tasdiqlaysizmi?')) return;
+  const products = Store.get('products', []).filter(p => p.id !== id);
+  Store.set('products', products);
+  showToast('Mahsulot o\'chirildi', 'info');
+  renderAdminProducts();
+}
+
+function toggleProductActive(id) {
+  const products = Store.get('products', []);
+  const idx = products.findIndex(p => p.id === id);
+  if (idx > -1) {
+    products[idx].active = !products[idx].active;
+    Store.set('products', products);
+    renderAdminProducts();
+  }
+}
+
+function openStockModal(id) {
+  const products = Store.get('products', []);
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('stockProductId').value = id;
+  document.getElementById('stockProductName').textContent = p.emoji + ' ' + p.name;
+  document.getElementById('stockNewVal').value = p.stock;
+  openModal('stockModal');
+}
+
+function updateStock() {
+  const id = parseInt(document.getElementById('stockProductId').value);
+  const val = parseInt(document.getElementById('stockNewVal').value) || 0;
+  const products = Store.get('products', []);
+  const idx = products.findIndex(p => p.id === id);
+  if (idx > -1) {
+    products[idx].stock = val;
+    Store.set('products', products);
+    showToast('Ombor yangilandi ✓', 'success');
+    closeModal('stockModal');
+    renderAdminProducts();
+    renderDashboard();
+  }
+}
+
+function renderAdminProducts() {
+  const search = (document.getElementById('adminProdSearch')?.value || '').toLowerCase();
+  let products = Store.get('products', []);
+  if (search) {
+    products = products.filter(p =>
+      p.name.toLowerCase().includes(search) ||
+      p.brand.toLowerCase().includes(search) ||
+      p.category.toLowerCase().includes(search)
+    );
+  }
+
+  const tbody = document.getElementById('productsTableBody');
+  if (!tbody) return;
+  document.getElementById('prodCount').textContent = `Jami ${products.length} mahsulot`;
+
+  tbody.innerHTML = products.map(p => {
+    const stockClass = p.stock === 0 ? 'badge-red' : p.stock <= p.minStock ? 'badge-orange' : 'badge-green';
+    const stockText = p.stock === 0 ? 'Tugagan' : p.stock <= p.minStock ? `Kam (${p.stock})` : `${p.stock} dona`;
+    const imgSrc = getProductImage(p);
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:48px;height:48px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f0f0f0;border:1px solid var(--border)">
+              <img src="${imgSrc}" alt="${p.name}"
+                style="width:100%;height:100%;object-fit:cover"
+                onerror="this.style.display='none';this.nextSibling.style.display='flex'">
+              <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:22px">${p.emoji||'📦'}</div>
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:13px">${p.name}</div>
+              <div style="font-size:11px;color:var(--gray)">${p.brand}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge badge-gray">${p.category}</span></td>
+        <td style="font-weight:700">${fmtPrice(p.price)}</td>
+        <td>
+          <span class="badge ${stockClass}">${stockText}</span>
+          <button class="action-btn edit" style="margin-left:6px" onclick="openStockModal(${p.id})" title="Ombor yangilash">📥</button>
+        </td>
+        <td>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600">
+            <input type="checkbox" ${p.active ? 'checked' : ''} onchange="toggleProductActive(${p.id})"
+              style="accent-color:var(--red);width:15px;height:15px">
+            ${p.active ? '<span style="color:var(--green)">Faol</span>' : '<span style="color:var(--gray)">Nofaol</span>'}
+          </label>
+        </td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="action-btn edit" onclick="openEditProduct(${p.id})" title="Tahrirlash">✏️</button>
+            <button class="action-btn delete" onclick="deleteProduct(${p.id})" title="O'chirish">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ===== FINANCE =====
+function renderFinance() {
+  const trans = Store.get('transactions', []);
+  const income = trans.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const expense = trans.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const profit = income - expense;
+
+  document.getElementById('financeSummary').innerHTML = `
+    <div class="fin-card income">
+      <div class="fin-card-label">📈 Jami kirim</div>
+      <div class="fin-card-val">${fmtPrice(income)}</div>
+    </div>
+    <div class="fin-card expense">
+      <div class="fin-card-label">📉 Jami chiqim</div>
+      <div class="fin-card-val">${fmtPrice(expense)}</div>
+    </div>
+    <div class="fin-card profit">
+      <div class="fin-card-label">💼 Sof foyda</div>
+      <div class="fin-card-val" style="color:${profit>=0?'var(--green)':'var(--red)'}">${fmtPrice(profit)}</div>
+    </div>
+  `;
+
+  renderMonthlyChart(trans);
+  renderCatChart(trans);
+  renderTransactions();
+}
+
+function renderMonthlyChart(trans) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const year = new Date().getFullYear();
+  const data = months.map((m, i) => {
+    const month = String(i + 1).padStart(2, '0');
+    const monthTrans = trans.filter(t => t.date && t.date.startsWith(`${year}-${month}`));
+    return {
+      label: m,
+      income: monthTrans.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+      expense: monthTrans.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+    };
+  });
+  const maxVal = Math.max(...data.map(d => Math.max(d.income, d.expense)), 1);
+
+  document.getElementById('monthlyChart').innerHTML = `
+    <div class="chart-legend">
+      <span><i style="background:var(--green)"></i> Kirim</span>
+      <span><i style="background:var(--red)"></i> Chiqim</span>
+    </div>
+    <div class="month-bars">
+      ${data.map(d => `
+        <div class="month-col">
+          <div class="month-bar-wrap">
+            <div class="month-bar inc" style="height:${Math.round((d.income/maxVal)*140)}px"></div>
+            <div class="month-bar exp" style="height:${Math.round((d.expense/maxVal)*140)}px"></div>
+          </div>
+          <div class="month-label">${d.label}</div>
+        </div>`).join('')}
+    </div>
+  `;
+}
+
+function renderCatChart(trans) {
+  const catMap = {};
+  trans.forEach(t => {
+    if (!catMap[t.category]) catMap[t.category] = { income: 0, expense: 0 };
+    catMap[t.category][t.type] += t.amount;
+  });
+  const cats = Object.entries(catMap).sort((a,b) => (b[1].income+b[1].expense)-(a[1].income+a[1].expense));
+  const maxTotal = Math.max(...cats.map(([,v]) => v.income + v.expense), 1);
+
+  document.getElementById('catChart').innerHTML = cats.map(([cat, v]) => {
+    const total = v.income + v.expense;
+    const pct = Math.round((total / maxTotal) * 100);
+    return `
+      <div class="chart-bar-item">
+        <div class="chart-bar-label">${cat}</div>
+        <div class="chart-bar-track">
+          <div class="chart-bar-fill ${v.income > v.expense ? 'income' : 'expense'}" style="width:${pct}%"></div>
+        </div>
+        <div class="chart-bar-val">${fmtPrice(total)}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderTransactions() {
+  const filter = document.getElementById('transFilter')?.value || 'all';
+  let trans = Store.get('transactions', []);
+  if (filter !== 'all') trans = trans.filter(t => t.type === filter);
+  trans = [...trans].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  document.getElementById('transTableBody').innerHTML = trans.map(t => `
+    <tr>
+      <td>${t.date}</td>
+      <td>
+        <span class="badge ${t.type==='income'?'badge-green':'badge-red'}">
+          ${t.type==='income'?'📈 Kirim':'📉 Chiqim'}
+        </span>
+      </td>
+      <td>${t.category}</td>
+      <td>${t.desc}</td>
+      <td style="font-weight:700;color:${t.type==='income'?'var(--green)':'var(--red)'}">
+        ${t.type==='income'?'+':'-'}${fmtPrice(t.amount)}
+      </td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="action-btn edit" onclick="openEditTrans(${t.id})" title="Tahrirlash">✏️</button>
+          <button class="action-btn delete" onclick="deleteTrans(${t.id})" title="O'chirish">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openEditTrans(id) {
+  const trans = Store.get('transactions', []);
+  const t = trans.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('transModalTitle').textContent = 'Tranzaksiyani tahrirlash';
+  document.getElementById('editTransId').value = id;
+  document.getElementById('tType').value = t.type;
+  document.getElementById('tAmount').value = t.amount;
+  document.getElementById('tDate').value = t.date;
+  document.getElementById('tCategory').value = t.category;
+  document.getElementById('tDesc').value = t.desc;
+  openModal('addTransModal');
+}
+
+function saveTransaction() {
+  const type = document.getElementById('tType').value;
+  const amount = parseInt(document.getElementById('tAmount').value) || 0;
+  const date = document.getElementById('tDate').value;
+  const category = document.getElementById('tCategory').value;
+  const desc = document.getElementById('tDesc').value.trim();
+  const editId = document.getElementById('editTransId').value;
+
+  if (!amount || !date || !desc) {
+    showToast('Majburiy maydonlarni to\'ldiring!', 'error'); return;
+  }
+
+  const trans = Store.get('transactions', []);
+
+  if (editId) {
+    const idx = trans.findIndex(t => t.id === parseInt(editId));
+    if (idx > -1) {
+      trans[idx] = { ...trans[idx], type, amount, date, category, desc };
+      showToast('Tranzaksiya yangilandi ✓', 'success');
+    }
+  } else {
+    const newId = Store.get('nextTransId', 11);
+    trans.push({ id: newId, type, amount, date, category, desc });
+    Store.set('nextTransId', newId + 1);
+    showToast('Tranzaksiya qo\'shildi ✓', 'success');
+  }
+
+  Store.set('transactions', trans);
+  closeModal('addTransModal');
+  document.getElementById('editTransId').value = '';
+  renderFinance();
+  renderDashboard();
+}
+
+function deleteTrans(id) {
+  if (!confirm('Tranzaksiyani o\'chirishni tasdiqlaysizmi?')) return;
+  const trans = Store.get('transactions', []).filter(t => t.id !== id);
+  Store.set('transactions', trans);
+  showToast('Tranzaksiya o\'chirildi', 'info');
+  renderFinance();
+  renderDashboard();
+}
+
+// ===== CATEGORIES =====
+function renderCategories() {
+  const cats = Store.get('categories', []);
+  const listDiv = document.getElementById('catList');
+  if (!listDiv) return;
+  if (!cats.length) {
+    listDiv.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray);font-size:13px">Kategoriya yo\'q</div>';
+    return;
+  }
+  listDiv.innerHTML = cats.map((cat, i) => {
+    const name  = typeof cat === 'object' ? cat.name  : cat;
+    const image = typeof cat === 'object' ? cat.image : '';
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--off-white);border-radius:var(--radius-sm);border:1px solid var(--border)">
+      <div style="width:48px;height:48px;border-radius:var(--radius-sm);overflow:hidden;flex-shrink:0;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:20px">
+        ${image
+          ? `<img src="${image}" style="width:100%;height:100%;object-fit:cover">`
+          : '🖼️'}
+      </div>
+      <span style="font-size:13px;font-weight:600;flex:1">${name}</span>
+      <button class="action-btn edit" onclick="openCatEdit(${i})" title="Tahrirlash">✏️</button>
+      <button class="action-btn delete" onclick="deleteCategory(${i})" title="O'chirish">🗑️</button>
+    </div>`;
+  }).join('');
+}
+
+// Category image upload (add form)
+function handleCatImageFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('Rasm 5MB dan kichik bo\'lsin!', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => setCatImagePreview(e.target.result);
+  reader.readAsDataURL(file);
+}
+function handleCatImageDrop(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = ev => setCatImagePreview(ev.target.result);
+    reader.readAsDataURL(file);
+  }
+}
+function setCatImagePreview(src) {
+  document.getElementById('catImageData').value = src;
+  document.getElementById('catImgPreview').src = src;
+  document.getElementById('catImgPreviewWrap').style.display = 'block';
+  document.getElementById('catImgPlaceholder').style.display = 'none';
+}
+function clearCatImage() {
+  document.getElementById('catImageData').value = '';
+  document.getElementById('catImageFile').value = '';
+  document.getElementById('catImgPreviewWrap').style.display = 'none';
+  document.getElementById('catImgPlaceholder').style.display = '';
+}
+
+// Category edit modal
+function openCatEdit(idx) {
+  const cats = Store.get('categories', []);
+  const cat = cats[idx];
+  const name  = typeof cat === 'object' ? cat.name  : cat;
+  const image = typeof cat === 'object' ? cat.image : '';
+  document.getElementById('editCatIdx').value = idx;
+  document.getElementById('editCatName').value = name;
+  document.getElementById('catEditImageData').value = image || '';
+  if (image) {
+    document.getElementById('catEditImgPreview').src = image;
+    document.getElementById('catEditImgPreviewWrap').style.display = 'block';
+    document.getElementById('catEditImgPlaceholder').style.display = 'none';
+  } else {
+    document.getElementById('catEditImgPreviewWrap').style.display = 'none';
+    document.getElementById('catEditImgPlaceholder').style.display = '';
+  }
+  document.getElementById('catEditModal').style.display = 'flex';
+}
+function closeCatEdit() {
+  document.getElementById('catEditModal').style.display = 'none';
+}
+function saveCatEdit() {
+  const idx  = parseInt(document.getElementById('editCatIdx').value);
+  const name = document.getElementById('editCatName').value.trim();
+  const image = document.getElementById('catEditImageData').value;
+  if (!name) { showToast('Kategoriya nomini kiriting!', 'error'); return; }
+  const cats = Store.get('categories', []);
+  cats[idx] = { name, image };
+  Store.set('categories', cats);
+  // Also update CAT_IMAGES in memory so products pick it up
+  if (image) CAT_IMAGES[name] = image;
+  closeCatEdit();
+  showToast('Kategoriya yangilandi ✓', 'success');
+  renderCategories();
+}
+function handleCatEditImageFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('catEditImageData').value = e.target.result;
+    document.getElementById('catEditImgPreview').src = e.target.result;
+    document.getElementById('catEditImgPreviewWrap').style.display = 'block';
+    document.getElementById('catEditImgPlaceholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function clearCatEditImage() {
+  document.getElementById('catEditImageData').value = '';
+  document.getElementById('catEditImageFile').value = '';
+  document.getElementById('catEditImgPreviewWrap').style.display = 'none';
+  document.getElementById('catEditImgPlaceholder').style.display = '';
+}
+
+function addCategory() {
+  const input = document.getElementById('newCatInput');
+  const val   = input.value.trim();
+  const image = document.getElementById('catImageData').value;
+  if (!val) { showToast('Kategoriya nomini kiriting!', 'error'); return; }
+  const cats = Store.get('categories', []);
+  const exists = cats.some(c => (typeof c === 'object' ? c.name : c) === val);
+  if (exists) { showToast('Bu kategoriya allaqachon mavjud!', 'error'); return; }
+  cats.push({ name: val, image });
+  if (image) CAT_IMAGES[val] = image;
+  Store.set('categories', cats);
+  input.value = '';
+  clearCatImage();
+  showToast('Kategoriya qo\'shildi ✓', 'success');
+  renderCategories();
+}
+
+function deleteCategory(idx) {
+  if (!confirm('Kategoriyani o\'chirishni tasdiqlaysizmi?')) return;
+  const cats = Store.get('categories', []);
+  cats.splice(idx, 1);
+  Store.set('categories', cats);
+  showToast('Kategoriya o\'chirildi', 'info');
+  renderCategories();
+}
+
+// ===== SETTINGS =====
+function changePassword() {
+  const old = document.getElementById('oldPass').value;
+  const newP = document.getElementById('newPass').value;
+  const newP2 = document.getElementById('newPass2').value;
+  const creds = getCreds();
+  if (old !== creds.pass) { showToast('Hozirgi parol noto\'g\'ri!', 'error'); return; }
+  if (!newP || newP.length < 4) { showToast('Yangi parol kamida 4 ta belgidan iborat bo\'lsin!', 'error'); return; }
+  if (newP !== newP2) { showToast('Parollar mos kelmadi!', 'error'); return; }
+  localStorage.setItem(ADMIN_CREDS_KEY, JSON.stringify({ user: creds.user, pass: newP }));
+  showToast('Parol muvaffaqiyatli o\'zgartirildi ✓', 'success');
+  document.getElementById('oldPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('newPass2').value = '';
+}
+
+function resetToDefault() {
+  if (!confirm('Asosiy ma\'lumotlarga qaytishni tasdiqlaysizmi? Barcha o\'zgarishlar yo\'qoladi.')) return;
+  ['garant_products','garant_transactions','garant_categories','garant_nextProductId','garant_nextTransId'].forEach(k => localStorage.removeItem(k));
+  initData();
+  showToast('Ma\'lumotlar tiklandi ✓', 'success');
+  renderDashboard();
+}
+
+function clearAllData() {
+  if (!confirm('BARCHA ma\'lumotlarni o\'chirishni tasdiqlaysizmi? Bu amalni ortga qaytarib bo\'lmaydi!')) return;
+  ['garant_products','garant_transactions','garant_categories','garant_nextProductId','garant_nextTransId'].forEach(k => localStorage.removeItem(k));
+  showToast('Barcha ma\'lumotlar o\'chirildi', 'info');
+}
+
+// ===== INIT PAGE =====
+document.addEventListener('DOMContentLoaded', () => {
+  if (isLoggedIn()) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminWrap').classList.add('visible');
+    initAdmin();
+  }
+
+  // override openAddProduct button
+  document.querySelector('[onclick="openModal(\'addProductModal\')"]')?.addEventListener('click', openAddProduct);
+  document.querySelectorAll('[onclick="openModal(\'addProductModal\')"]').forEach(btn => {
+    btn.onclick = openAddProduct;
+  });
+
+  // reset trans modal on open
+  document.querySelector('[onclick="openModal(\'addTransModal\')"]')?.addEventListener('click', () => {
+    document.getElementById('editTransId').value = '';
+    document.getElementById('transModalTitle').textContent = 'Tranzaksiya qo\'shish';
+    document.getElementById('tType').value = 'income';
+    document.getElementById('tAmount').value = '';
+    document.getElementById('tDate').valueAsDate = new Date();
+    document.getElementById('tDesc').value = '';
+  });
+});
+</script>
+</body>
+</html>
