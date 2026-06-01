@@ -221,9 +221,7 @@
     <input class="login-input" id="loginPass" type="password" placeholder="••••••••">
     <div class="login-error" id="loginError">❌ Noto'g'ri login yoki parol</div>
     <button class="login-btn" onclick="doLogin()">Kirish →</button>
-    <div style="margin-top:20px;font-size:11px;color:rgba(255,255,255,0.15);text-align:center">
-      Demo: admin / garant2026
-    </div>
+
   </div>
 </div>
 
@@ -766,22 +764,33 @@
 // ===== AUTH =====
 const ADMIN_CREDS_KEY = 'garant_admin_creds';
 
+// Default hash: SHA-256("admin:garant2026") — parol bu yerda saqlanmaydi
+const DEFAULT_CREDS_HASH = 'b3cb9327b4b458c8c20de512f2f17c7f6afbc8523e89e0b5dc11e6f0eeeb71c2';
+
+async function hashCreds(user, pass) {
+  const str = user + ':' + pass;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
 function getCreds() {
   try {
     const v = localStorage.getItem(ADMIN_CREDS_KEY);
-    return v ? JSON.parse(v) : { user: 'admin', pass: 'garant2026' };
-  } catch { return { user: 'admin', pass: 'garant2026' }; }
+    return v ? JSON.parse(v) : null;
+  } catch { return null; }
 }
 
 function isLoggedIn() {
   return sessionStorage.getItem('garant_logged') === '1';
 }
 
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value.trim();
-  const creds = getCreds();
-  if (u === creds.user && p === creds.pass) {
+  const hash = await hashCreds(u, p);
+  const stored = getCreds();
+  const validHash = stored ? stored.hash : DEFAULT_CREDS_HASH;
+  if (hash === validHash) {
     sessionStorage.setItem('garant_logged', '1');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminWrap').classList.add('visible');
